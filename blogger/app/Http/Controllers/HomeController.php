@@ -10,6 +10,7 @@ use App\Like;
 use App\Comment;
 use App\User;
 use Validator;
+use App\Image;
 use Illuminate\Support\Facades\Input;
 
 class HomeController extends Controller
@@ -54,6 +55,68 @@ class HomeController extends Controller
         {
             $p = $request->input('post');
             $title = $request->input('title');
+            $slug = str_slug($title);
+            $coverImage = NULL;
+
+            //dd($request->all());
+            $exists = Post::where('slug','=',$slug)->first();
+            //if(is_null($postId))
+            //{
+                if(!is_null($exists))
+                {
+                    return redirect()->back()->with('titleError','Title Exists Already')->withInput();
+                }
+            //}
+            //dd($request->all());
+           
+            if(Input::hasFile('cover'))
+            {
+                $file = Input::file('cover');
+                //dd($file->getClientOriginalName());
+                $input = array('cover'=>$file);
+                $rules = array(
+                    'cover'=> 'image|mimes:jpeg,png,jpg,gif|max:10240'
+                    );
+
+                $validator = Validator::make($input,$rules);
+                if($validator->fails())
+                {
+                    return redirect()->back()->with('imageError','Invalid Image');
+                }
+                else
+                {
+                    $destinationPath = 'images/';
+                    $fileName = $file->getClientOriginalName();
+                    Input::file('cover')->move($destinationPath,$fileName);
+                    $coverImage = $fileName;
+                }
+            }
+            
+            $newPost = new Post;
+            $img = new Image;
+
+            //$newPost = new Post;
+            $newPost->post = $p;
+            $newPost->title= $title;
+            $newPost->slug = $slug;
+            $newPost->user_id = Auth::user()->id;
+            $newPost->save();
+            $newPost->image()->save($img);
+            return redirect()->back()->with('success','Blog Created');
+        }
+        else
+        {
+            return redirect('login');
+        }
+    }
+
+
+    public function saveEditedPost(Request $request)
+    {
+        if(Auth::user())
+        {
+            $p = $request->input('post');
+            $title = $request->input('title');
             $postId = $request->input('postId');
             $slug = str_slug($title);
             $coverImage = NULL;
@@ -92,15 +155,15 @@ class HomeController extends Controller
                 }
             }
             
-            $newPost = Post::find($postId);
-            if(is_null($newPost))
+            $newPost = Post::with('image')->where('id','=',$postId)->first();
+
+            if($coverImage != NULL)        //case of editing and image updated
             {
-                $newPost = new Post;
-                $newPost->image = $coverImage; 
-            }
-            else if($coverImage != NULL)
-            {
-                $newPost->image = $coverImage;
+                $img = $newPost->Image;
+                if(is_null($img))
+                    $img = new Image;
+                $img->image_path = $coverImage;
+                $newPost->image()->save($img);
             }
             //$newPost = new Post;
             $newPost->post = $p;
@@ -108,6 +171,7 @@ class HomeController extends Controller
             $newPost->slug = $slug;
             $newPost->user_id = Auth::user()->id;
             $newPost->save();
+            
             return redirect()->back()->with('success','Blog Created');
         }
         else
@@ -140,7 +204,7 @@ class HomeController extends Controller
         {
             $id = $request->input('postId');
             $text = $request->input('post');
-            $post = Post::find($id);
+            $post = Post::with('image')->first();
             if(!is_null($post))
             {
                 $post->post = $text;
@@ -157,13 +221,14 @@ class HomeController extends Controller
 
     public function viewBlog($slug)
     {
-        $post = Post::with(['likes','comments'])->where('slug','=',$slug)->first();
+        $post = Post::with(['likes','comments','image'])->where('slug','=',$slug)->first();
 
         if(is_null($post))
         {
             return response("<div class='panel' style='margin:auto;width:300px'><b>Post Not Found</b></div>");
         }
 
+        
         $uids = array();
         //dd($post->comments);
         foreach($post->comments as $c)
@@ -176,7 +241,7 @@ class HomeController extends Controller
         $next = Post::find($nxt);
         $pre = Post::where('id','>',$post->id)->min('id');
         $previous = Post::find($pre);
-        $users = User::whereIn('id',$uids)->get();
+        $users = User::whereIn('id',$uids)->with('image')->get();
 
         //dd($previous .' ' .$next);
         //dd($users);
@@ -226,5 +291,54 @@ class HomeController extends Controller
         }
         else
             return view('edit',compact('post'));
+    }
+
+    public function profileImage()
+    {
+        return view('profile');
+    }
+
+    public function updateProfileImage(Request $request)
+    {
+        $userId = $request->input('userId');
+        $selectedImage = NULL;
+        if(Input::hasFile('selectedImage'))
+        {
+            $file = Input::file('selectedImage');
+            //dd($file->getClientOriginalName());
+            $input = array('userimage'=>$file);
+            $rules = array(
+                'userimage'=> 'image|mimes:jpeg,png,jpg,gif|max:10240'
+                );
+
+            $validator = Validator::make($input,$rules);
+            if($validator->fails())
+            {
+                return redirect()->back()->with('imageError','Invalid Image');
+            }
+            else
+            {
+                $destinationPath = 'images/';
+                $fileName = $file->getClientOriginalName();
+                Input::file('selectedImage')->move($destinationPath,$fileName);
+                $selectedImage = $fileName;
+            }
+        }
+        $user = User::with('image')->where('id','=',$userId)->first();
+        if(is_null($user->Image))
+        {
+            $img = new Image;
+            $img->image_path = $selectedImage;
+            $user->image()->save($img);
+            return redirect()->back()->with('successMsg','Image Updated Successfully.!');
+        }
+        else
+        {
+            $img = $user->Image;
+            $img->image_path = $selectedImage;
+            $user->image()->save($img);
+            return redirect()->back()->with('successMsg','Image Updated Successfully.!');
+        }
+      
     }
 }

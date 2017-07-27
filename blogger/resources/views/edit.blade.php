@@ -4,10 +4,17 @@
 
 <div class="container">
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-2" id="profileImage">
+            <a href="{{url('profile')}}">
+                <div style="height:200px" title="Click to update profile image">
+                    <img src="@if(is_null(Auth::user()->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.Auth::user()->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
+                </div>
+            </a>
+        </div>
+		<div class="col-md-10">
 			@if(session()->has('success'))
 				<div class="alert alert-success">
-					Blog Updated Successfully.!
+					Blog Updated Successfully.! <a href="{{ url('view/'. $post->slug)}}">View</a>
 				</div>
 			@endif
 			<div class="panel panel-warning">
@@ -28,7 +35,7 @@
 	                    </div>
 	                    <div style="width:50%;float:right">
 	                    	<span> Current Image: </span>
-	                    	<img src="{{URL::asset('images/'.$post->image)}}" style="width:150px;height:150px">
+	                    	<img src="@if(!is_null($post->Image)) {{URL::asset('images/'.$post->Image->image_path)}} @endif" style="width:150px;height:150px">
 	                    </div>
 	                    <div style="clear:both"></div>
 	                    <div style="margin-top:20px;">
@@ -46,8 +53,7 @@
 @endsection
 
 @section('customScript')
-<script src="http://js.nicedit.com/nicEdit-latest.js" type="text/javascript"></script>
-<script type="text/javascript">bkLib.onDomLoaded(nicEditors.allTextAreas);</script>
+
 <script type="text/javascript">
 	function readURL(input){
 		if(input.files && input.files[0]){

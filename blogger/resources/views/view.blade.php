@@ -5,7 +5,14 @@
 
 <div class="container">
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-2" id="profileImage">
+            <a href="{{url('profile')}}">
+                <div style="height:200px" title="Click to update profile image">
+                    <img src="@if(is_null(Auth::user()->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.Auth::user()->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
+                </div>
+            </a>
+        </div>
+		<div class="col-md-10">
 		<div class="panel">	
 			<div class="panel-body">
 				<input type="hidden" id="token" name="token" value="{{csrf_token()}}">
@@ -25,7 +32,7 @@
 						{{ $post->post }}
 					</div>
 					<div class="img">
-						<img src=" {{ URL::asset('images/'.$post->image)}}" alt="Cover Image" title="Cover Image" style="width:100%;height:200px">
+						<img src=" @if(!is_null($post->Image)){{ URL::asset('images/'.$post->Image->image_path)}} @endif" alt="Cover Image" title="Cover Image" style="width:100%;height:200px">
 					</div>
 				</div>
 				<div style="border-top:1px solid #efefef;border-bottom:1px solid #efefef;padding:10px">
@@ -62,15 +69,21 @@
 							
 							@if($u->id == $c->user_id)
 							<div class="panel-body" style="background-color:#efefef;margin-bottom:5px;border-radius:5px">
-								<div>
-									<h5 style="margin:0;margin-bottom:5px"><b>{{ $u->name }}</b></h5>
+								<div style="float:left;width:90%">
+									<div>
+										<h5 style="margin:0;margin-bottom:5px"><b>{{ $u->name }}</b></h5>
+									</div>
+									<div >
+										{{ $c->comment }}
+									</div>
+									<div>
+										<span style="font-size:11px">{{ Carbon\Carbon::parse($c->created_at)->diffForHumans()}}</span>
+									</div>
 								</div>
-								<div >
-									{{ $c->comment }}
+								<div style="float:right;width:10%;height:100%">
+									<img src="@if(is_null($u->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.$u->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
 								</div>
-								<div>
-									<span style="font-size:11px">{{ Carbon\Carbon::parse($c->created_at)->diffForHumans()}}</span>
-								</div>
+								<div style="clear:both"></div>
 							</div>
 							@endif
 						@endforeach

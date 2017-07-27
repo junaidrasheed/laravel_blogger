@@ -23,4 +23,10 @@ class Post extends Model
     {
     	return $this->hasMany('App\Comment');
     }
+
+    public function image()
+    {
+        return $this->morphOne('App\Image','imagemodel');
+    }
+
 }

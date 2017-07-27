@@ -4,10 +4,18 @@
 
 <div class="container">
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-md-2" id="profileImage">
+            <a href="{{url('profile')}}">
+                <div style="height:200px" title="Click to update profile image">
+                    <img src="@if(is_null(Auth::user()->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.Auth::user()->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
+                </div>
+            </a>
+        </div>
+		<div class="col-md-10">
+
 			@if(session()->has('success'))
 				<div class="alert alert-success">
-					Blog Posted Successfully.!
+					Blog Posted Successfully.! <a href="{{ url('home')}}">View</a>
 				</div>
 			@endif
 			<div class="panel panel-warning">
@@ -25,7 +33,7 @@
 	                    	<span style="color:red">{{ session('imageError') }}</span>
 	                    @endif
 	                    <div style="margin-top:20px;">
-	                        <button type="submit" id="btnSubmit" class="btn btn-sm btn-primary">Post Your Blog</button>
+	                        <button type="submit" id="btnSubmit" class="btn btn-sm btn-primary" title="Post Your Blog">Post Your Blog</button>
 	                    </div>    
 	                </form>
 	                

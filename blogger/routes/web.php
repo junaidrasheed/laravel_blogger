@@ -37,4 +37,7 @@ Route::post('view/addLike','HomeController@addLike');
 
 Route::get('edit/{slug}','HomeController@edit');
 
-Route::post('edit/saveEditPost','HomeController@addPost');
+Route::post('edit/saveEditPost','HomeController@saveEditedPost');
+
+Route::get('profile','HomeController@profileImage');
+Route::post('updateUserImage','HomeController@updateProfileImage');

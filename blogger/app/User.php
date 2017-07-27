@@ -36,4 +36,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Follower','follower_id');
     }
+
+    public function image()
+    {
+        return $this->morphOne('App\Image','imagemodel');
+    }
 }
