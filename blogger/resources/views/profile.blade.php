@@ -9,6 +9,11 @@
                     <img src="@if(is_null(Auth::user()->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.Auth::user()->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
                 </div>
             </a>
+            <h4 style="text-align:center">Hi,
+            <?php 
+                $name = explode(" ",Auth::user()->name);
+                echo $name[0]; 
+            ?></h4>
         </div>
 		<div class="col-md-10">
 			@if(session()->has('successMsg'))

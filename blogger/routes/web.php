@@ -19,7 +19,7 @@ Route::get('/','HomeController@index');
 
  Auth::routes();
 
-Route::get('home', 'HomeController@index')->name('home');
+Route::get('home/{category?}', 'HomeController@index')->name('home');
 
 Route::post('addPost','HomeController@addPost');
 
@@ -41,3 +41,10 @@ Route::post('edit/saveEditPost','HomeController@saveEditedPost');
 
 Route::get('profile','HomeController@profileImage');
 Route::post('updateUserImage','HomeController@updateProfileImage');
+
+Route::post('getLikesUsers','HomeController@getLikesUsers');
+Route::post('getCommentsUsers','HomeController@getCommentsUsers');
+
+Route::post('edit/updateBlogImage','HomeController@updateBlogImage');
+
+Route::post('postBlogImages','HomeController@addBlogImages');

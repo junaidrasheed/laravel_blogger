@@ -11,9 +11,15 @@
                     <img src="@if(is_null(Auth::user()->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.Auth::user()->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
                 </div>
             </a>
+            <h4 style="text-align:center">Hi, 
+            	<?php 
+                $name = explode(" ",Auth::user()->name);
+                echo $name[0]; 
+            	?>
+            </h4>
         </div>
 		<div class="col-md-10">
-		<div class="panel">	
+		<div class="panel panel-default">	
 			<div class="panel-body">
 				<input type="hidden" id="token" name="token" value="{{csrf_token()}}">
 				<input type="hidden" id="postId" value="{{$post->id}}">
@@ -21,20 +27,21 @@
 				<div>
 					<h1>{{ $post->title }}</h1>
 					<span style="font-size:11px">{{Carbon\Carbon::parse($post->created_at)->diffForHumans()}}</span>
-                    <h5>By:
-                    <b>
-                        {{$username}}
-                    </b>
-                    </h5>
+                    <h6>By:<b>{{$username}}</b></h6>
+                    <h6>Category: <b>{{ $categoryname }}</b></h6>
 				</div>
 				<div style="border-top:1px solid #efefef;margin:10px">
 					<div class="blog" style="margin-bottom:30px">
-						{{ $post->post }}
+						{!! $post->post !!}
 					</div>
-					<div class="img">
-						<img src=" @if(!is_null($post->Image)){{ URL::asset('images/'.$post->Image->image_path)}} @endif" alt="Cover Image" title="Cover Image" style="width:100%;height:200px">
+					<div>
+						@foreach($post->image as $img)
+							<img src=" {{ URL::asset('images/'.$img->image_path)}}" alt="Cover Image" title="{{$img->image_path}}" style="width:50%;height:200px;float:left">
+						@endforeach
 					</div>
+					
 				</div>
+				<div style="clear:both"></div>
 				<div style="border-top:1px solid #efefef;border-bottom:1px solid #efefef;padding:10px">
 					<div id="likeDiv" style="float:left;margin-right:20px;border-radius:5px">
 						<span class="likeCount">{{ $post->likes->count()}}</span>
@@ -81,7 +88,7 @@
 									</div>
 								</div>
 								<div style="float:right;width:10%;height:100%">
-									<img src="@if(is_null($u->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.$u->Image->image_path) }} @endif" alt="Profile Image" style="width:100%;height:100%" class="img img-thumbnail">
+									<img src="@if(is_null($u->Image)) {{ URL::asset('images/profile.png')}} @else {{ URL::asset('images/'.$u->Image->image_path) }} @endif" alt="Profile Image" title="{{ $u->name }}" style="width:100%;height:100%" class="img img-thumbnail">
 								</div>
 								<div style="clear:both"></div>
 							</div>
@@ -93,7 +100,7 @@
 			</div>
 		</div>
 
-		<div class="panel">
+		<div class="panel panel-default">
 			<div class="panel-body">
 				<div style="float:left">
 					<span style="font-size:'13px"> << Previous </span><br>

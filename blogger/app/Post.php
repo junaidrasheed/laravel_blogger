@@ -26,7 +26,12 @@ class Post extends Model
 
     public function image()
     {
-        return $this->morphOne('App\Image','imagemodel');
+        return $this->morphMany('App\Image','imagemodel');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo('App\Category');
     }
 
 }
